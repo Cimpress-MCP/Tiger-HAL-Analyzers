@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tiger.Hal.Analyzers.Vsix", "src\Tiger.Hal.Analyzers.Vsix\Tiger.Hal.Analyzers.Vsix.csproj", "{0103C8C3-C016-46F2-AC80-87845196CA5D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tiger.Hal.Analyzers", "src\Tiger.Hal.Analyzers\Tiger.Hal.Analyzers.csproj", "{AA481109-542B-4309-A86B-9AF08D7E0EA3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "unit\Test.csproj", "{4CCA5DF5-312E-4E36-9EC0-9AB5008D887D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{92209DA1-524B-48E0-AE6F-ECE45FA7109D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{786D39A8-F0C7-4A25-9ADB-88B3116C86B9}"
+	ProjectSection(SolutionItems) = preProject
+		docs\reference\TH1001_SelectorArgumentMustBeASimplePropertySelector.md = docs\reference\TH1001_SelectorArgumentMustBeASimplePropertySelector.md
+		docs\reference\TH1002_SelectorArgumentMustBeASimplePropertySelector.md = docs\reference\TH1002_SelectorArgumentMustBeASimplePropertySelector.md
+		docs\reference\TH1003_RemoveEmptyIgnoreTransformation.md = docs\reference\TH1003_RemoveEmptyIgnoreTransformation.md
+		docs\reference\TH1004_SelectorArgumentMustBeASimplePropertySelector.md = docs\reference\TH1004_SelectorArgumentMustBeASimplePropertySelector.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA481109-542B-4309-A86B-9AF08D7E0EA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA481109-542B-4309-A86B-9AF08D7E0EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA481109-542B-4309-A86B-9AF08D7E0EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA481109-542B-4309-A86B-9AF08D7E0EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CCA5DF5-312E-4E36-9EC0-9AB5008D887D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CCA5DF5-312E-4E36-9EC0-9AB5008D887D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CCA5DF5-312E-4E36-9EC0-9AB5008D887D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CCA5DF5-312E-4E36-9EC0-9AB5008D887D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0103C8C3-C016-46F2-AC80-87845196CA5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0103C8C3-C016-46F2-AC80-87845196CA5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0103C8C3-C016-46F2-AC80-87845196CA5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0103C8C3-C016-46F2-AC80-87845196CA5D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{786D39A8-F0C7-4A25-9ADB-88B3116C86B9} = {92209DA1-524B-48E0-AE6F-ECE45FA7109D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {94E8C859-4787-47F3-BDBD-BE40886E1194}
+	EndGlobalSection
+EndGlobal
