@@ -7,7 +7,7 @@ Tiger.Hal.Analyzers is a collection of Roslyn diagnostic analyzers and code fix 
 ## Why You Want It
 
 Libraries can have restrictions that are not representable by the C# type system.
-Roslyn analyzers allow library authors to provide information the the C# aompiler to signal compilation errors, warnings, and the like when these restrictions are violated, for those that can be detected at compile time.
+Roslyn analyzers allow library authors to provide information the the C# compiler to signal compilation errors, warnings, and the like when these restrictions are violated, for those that can be detected at compile time.
 
 For example, in Tiger.Hal, the selectors to the `Ignore` transformation are meaningless if they are not simple property selectors.
 This transformation:
