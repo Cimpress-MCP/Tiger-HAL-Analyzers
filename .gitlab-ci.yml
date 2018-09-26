@@ -11,7 +11,7 @@ cache:
 build:
   stage: build
   script:
-    - dotnet build -c Release
+    - dotnet build -c Release ./src/Tiger.Hal.Analyzers/
   artifacts:
     untracked: true
 
@@ -23,7 +23,7 @@ test:
 pack:
   stage: test-pack
   script:
-    - dotnet pack -c Release -o "$(pwd)/dist/"
+    - dotnet pack -c Release -o "$(pwd)/dist/" ./src/Tiger.Hal.Analyzers/
   artifacts:
     untracked: false
     paths:
