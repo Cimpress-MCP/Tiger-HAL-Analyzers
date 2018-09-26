@@ -2,7 +2,7 @@
 
 ## Cause
 
-When using the method `Ignore`, the `selector` argument is any C# construct but a lambda selecting a property on its argument.
+When using the `Expression` flavor of the method `Ignore`, the `selector` argument is any C# construct but a lambda selecting a property on its argument.
 
 ## Rule description
 
@@ -44,3 +44,4 @@ transformationMap.Ignore(l => l.AnotherLink);
 
 - [TH1001: Selector argument must be a simple property selector](https://github.com/Cimpress-MCP/Tiger.Hal.Analyzers/blob/master/docs/reference/TH1001_SelectorArgumentMustBeASimplePropertySelector.md)
 - [TH1004: Selector argument must be a simple property selector](https://github.com/Cimpress-MCP/Tiger.Hal.Analyzers/blob/master/docs/reference/TH1004_SelectorArgumentMustBeASimplePropertySelector.md)
+- [TH1005: Selector argument must be a name on the transforming type](https://github.com/Cimpress-MCP/Tiger.Hal.Analyzers/blob/master/docs/reference/TH1004_SelectorArgumentMustBeASimplePropertySelector.md)

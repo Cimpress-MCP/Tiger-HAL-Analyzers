@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FsCheck.Xunit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -19,7 +18,6 @@ namespace Test
     /// <see cref="IncorrectLinkAndIgnoreAnalyzer"/> class and the
     /// <see cref="IncorrectLinkAndIgnoreCodeFixProvider"/> class.
     /// </summary>
-    [Properties(QuietOnSuccess = true)]
     public static class IncorrectLinkAndIgnoreTests
     {
         static readonly MetadataReference[] s_allAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
@@ -350,6 +348,132 @@ namespace Test
 }
 ";
             var diagnostics = await Diagnose(source, "MultiProperty.cs", "multiproperty").ConfigureAwait(false);
+
+            Assert.Equal(2, diagnostics.Length);
+            Assert.All(diagnostics, d => d.Id.StartsWith(IncorrectLinkAndIgnoreAnalyzer.Id, Ordinal));
+        }
+
+        [Fact(DisplayName = "A simple property selector with named arguments produces no diagnostic.")]
+        public static async Task SimplePropertySelectorNamed_Extension_Empty()
+        {
+            const string source = @"
+using System;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.LinkAndIgnore(relation: ""wow"", selector: l => l.Link);
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "SimpleNamed.cs", "simplenamed").ConfigureAwait(false);
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact(DisplayName = "A simple property selector with named, swapped arguments produces no diagnostic.")]
+        public static async Task SimplePropertySelectorNamedSwapped_Extension_Empty()
+        {
+            const string source = @"
+using System;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.LinkAndIgnore(selector: l => l.Link, relation: ""wow"");
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "SimpleNamedSwapped.cs", "simplenamedswapped").ConfigureAwait(false);
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact(DisplayName = "A selector which is wrapped in a function with named arguments produces TH1001.")]
+        public static async Task FunctionCallNamed_Extension_TH1001()
+        {
+            const string source = @"
+using System;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        static T Id<T>(T value) => value;
+
+        public static void AnythingElse_NotIgnored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.LinkAndIgnore(relation: ""wow"", selector: l => Id(l.Link));
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "WrappedInIdNamed.cs", "wrappedinidnamed").ConfigureAwait(false);
+
+            Assert.Equal(2, diagnostics.Length);
+            Assert.All(diagnostics, d => d.Id.StartsWith(IncorrectLinkAndIgnoreAnalyzer.Id, Ordinal));
+        }
+
+        [Fact(DisplayName = "A selector which is wrapped in a function with named, swapped arguments produces TH1001.")]
+        public static async Task FunctionCallNamedSwapped_Extension_TH1001()
+        {
+            const string source = @"
+using System;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        static T Id<T>(T value) => value;
+
+        public static void AnythingElse_NotIgnored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.LinkAndIgnore(selector: l => Id(l.Link), relation: ""wow"");
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "WrappedInIdNamedSwapped.cs", "wrappedinidnamedswapped").ConfigureAwait(false);
 
             Assert.Equal(2, diagnostics.Length);
             Assert.All(diagnostics, d => d.Id.StartsWith(IncorrectLinkAndIgnoreAnalyzer.Id, Ordinal));

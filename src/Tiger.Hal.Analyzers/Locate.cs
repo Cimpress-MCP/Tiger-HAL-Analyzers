@@ -63,12 +63,8 @@ namespace Tiger.Hal.Analyzers
             {
                 switch (body)
                 {
-                    case BlockSyntax bs when bs.Statements.Count == 1:
-                        return GetIdentifierSymbol(c, bs.Statements[0]);
                     case MemberAccessExpressionSyntax maes when maes.Expression is IdentifierNameSyntax ins:
                         return c.SemanticModel.GetSymbolInfo(ins, c.CancellationToken).Symbol;
-                    case ReturnStatementSyntax rss:
-                        return GetIdentifierSymbol(c, rss.Expression);
                     case CastExpressionSyntax ces:
                         return GetIdentifierSymbol(c, ces.Expression);
                     default:

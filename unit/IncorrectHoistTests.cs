@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FsCheck.Xunit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -16,7 +15,6 @@ using static System.StringComparison;
 namespace Test
 {
     /// <summary>Tests related to the <see cref="IncorrectHoistAnalyzer"/> class.</summary>
-    [Properties(QuietOnSuccess = true)]
     public static class IncorrectHoistTests
     {
         static readonly MetadataReference[] s_allAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))

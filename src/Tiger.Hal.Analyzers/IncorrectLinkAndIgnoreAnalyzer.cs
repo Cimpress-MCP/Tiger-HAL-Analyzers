@@ -15,6 +15,7 @@
 // </copyright>
 
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -40,6 +41,8 @@ namespace Tiger.Hal.Analyzers
         const string LinkAndIgnore = "LinkAndIgnore";
 
         const string AndIgnore = "AndIgnore";
+
+        const string Selector = "selector";
 
         static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
@@ -103,20 +106,27 @@ namespace Tiger.Hal.Analyzers
                 return;
             }
 
-            int selectorIndex;
-            switch (methodSymbol.MethodKind)
+            ArgumentSyntax selectorArgument;
+            if (ies.ArgumentList.Arguments.All(a => a.NameColon != null))
             {
-                case Ordinary:
-                    selectorIndex = 2;
-                    break;
-                case ReducedExtension:
-                    selectorIndex = 1;
-                    break;
-                default:
-                    return;
+                selectorArgument = ies.ArgumentList.Arguments.Single(a => a.NameColon.Name.Identifier.ValueText == Selector);
+            }
+            else
+            {
+                switch (methodSymbol.MethodKind)
+                {
+                    case Ordinary:
+                        selectorArgument = ies.ArgumentList.Arguments[2];
+                        break;
+                    case ReducedExtension:
+                        selectorArgument = ies.ArgumentList.Arguments[1];
+                        break;
+                    default:
+                        return;
+                }
             }
 
-            var selectorLocation = Locate.NonSimpleSelector(context, ies.ArgumentList.Arguments[selectorIndex].Expression);
+            var selectorLocation = Locate.NonSimpleSelector(context, selectorArgument.Expression);
             if (selectorLocation is null)
             {
                 // note(cosborn) Congratulations, it's a simple selector.

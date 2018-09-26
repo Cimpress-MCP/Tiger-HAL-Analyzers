@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FsCheck.Xunit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -14,16 +13,15 @@ using static Microsoft.CodeAnalysis.LanguageNames;
 
 namespace Test
 {
-    /// <summary>Tests related to the <see cref="IncorrectIgnoreAnalyzer"/> class.</summary>
-    [Properties(QuietOnSuccess = true)]
-    public static class IncorrectIgnoreTests
+    /// <summary>Tests related to the <see cref="IncorrectIgnoreExpressionAnalyzer"/> class.</summary>
+    public static class IncorrectIgnoreExpressionTests
     {
         static readonly MetadataReference[] s_allAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
             .Split(Path.PathSeparator)
             .Select(loc => MetadataReference.CreateFromFile(loc))
             .ToArray();
 
-        static readonly ImmutableArray<DiagnosticAnalyzer> s_analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new IncorrectIgnoreAnalyzer());
+        static readonly ImmutableArray<DiagnosticAnalyzer> s_analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new IncorrectIgnoreExpressionAnalyzer());
 
         [Fact(DisplayName = "An empty source code file produces no diagnostic.")]
         public static async Task EmptySourceCode_Empty()
@@ -242,7 +240,7 @@ namespace Test
             var diagnostics = await Diagnose(source, "WrappedInId.cs", "wrappedinid").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
-            Assert.Equal(IncorrectIgnoreAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(IncorrectIgnoreExpressionAnalyzer.Id, diagnostic.Id);
         }
 
         [Fact(DisplayName = "A selector which is wrapped in a function produces TH1002.")]
@@ -275,7 +273,7 @@ namespace Test
             var diagnostics = await Diagnose(source, "WrappedInId.cs", "wrappedinid").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
-            Assert.Equal(IncorrectIgnoreAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(IncorrectIgnoreExpressionAnalyzer.Id, diagnostic.Id);
         }
 
         [Fact(DisplayName = "A nested selector produces TH1002.")]
@@ -311,7 +309,7 @@ namespace Test
             var diagnostics = await Diagnose(source, "MultiProperty.cs", "multiproperty").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
-            Assert.Equal(IncorrectIgnoreAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(IncorrectIgnoreExpressionAnalyzer.Id, diagnostic.Id);
         }
 
         [Fact(DisplayName = "A nested selector produces TH1002.")]
@@ -347,7 +345,7 @@ namespace Test
             var diagnostics = await Diagnose(source, "MultiProperty.cs", "multiproperty").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
-            Assert.Equal(IncorrectIgnoreAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(IncorrectIgnoreExpressionAnalyzer.Id, diagnostic.Id);
         }
 
         static Task<ImmutableArray<Diagnostic>> Diagnose(string source, string fileName, string projectName)

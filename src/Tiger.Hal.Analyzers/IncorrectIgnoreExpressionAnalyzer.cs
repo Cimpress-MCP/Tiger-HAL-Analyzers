@@ -1,4 +1,4 @@
-﻿// <copyright file="IncorrectIgnoreAnalyzer.cs" company="Cimpress, Inc.">
+﻿// <copyright file="IncorrectIgnoreExpressionAnalyzer.cs" company="Cimpress, Inc.">
 //   Copyright 2018 Cimpress, Inc.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,9 +28,9 @@ using static Microsoft.CodeAnalysis.SymbolKind;
 
 namespace Tiger.Hal.Analyzers
 {
-    /// <summary>Analyzes incorrect invocations of Ignore.</summary>
+    /// <summary>Analyzes incorrect invocations of Ignore with expressions.</summary>
     [DiagnosticAnalyzer(CSharp)]
-    public sealed class IncorrectIgnoreAnalyzer
+    public sealed class IncorrectIgnoreExpressionAnalyzer
         : DiagnosticAnalyzer
     {
         /// <summary>The unique identifier of the rule associated with this analyzer.</summary>
