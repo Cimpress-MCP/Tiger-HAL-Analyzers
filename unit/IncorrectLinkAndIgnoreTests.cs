@@ -155,66 +155,6 @@ namespace Test
             Assert.Empty(diagnostics);
         }
 
-        [Fact(DisplayName = "A block containing only a simple property selector produces no diagnostic.")]
-        public static async Task BlockSimplePropertySelector_Extension_Empty()
-        {
-            const string source = @"
-using System;
-using Tiger.Hal;
-
-namespace Test
-{
-    public static class ComplicatedLinkingTests
-    {
-        public sealed class Linker
-        {
-            public Uri Id { get; set; }
-
-            public Uri Link { get; set; }
-        }
-
-        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
-        {
-            transformationMap.LinkAndIgnore(""wow"", l => { return l.Link; });
-        }
-    }
-}
-";
-            var diagnostics = await Diagnose(source, "BlockSimple.cs", "blocksimple").ConfigureAwait(false);
-
-            Assert.Empty(diagnostics);
-        }
-
-        [Fact(DisplayName = "A block containing only a simple property selector produces no diagnostic.")]
-        public static async Task BlockSimplePropertySelector_Ordinary_Empty()
-        {
-            const string source = @"
-using System;
-using Tiger.Hal;
-
-namespace Test
-{
-    public static class ComplicatedLinkingTests
-    {
-        public sealed class Linker
-        {
-            public Uri Id { get; set; }
-
-            public Uri Link { get; set; }
-        }
-
-        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
-        {
-            TransformationMapExtensions.LinkAndIgnore(transformationMap, ""wow"", l => { return l.Link; });
-        }
-    }
-}
-";
-            var diagnostics = await Diagnose(source, "BlockSimple.cs", "blocksimple").ConfigureAwait(false);
-
-            Assert.Empty(diagnostics);
-        }
-
         [Fact(DisplayName = "A selector which is wrapped in a function produces TH1001.")]
         public static async Task FunctionCall_Extension_TH1001()
         {
