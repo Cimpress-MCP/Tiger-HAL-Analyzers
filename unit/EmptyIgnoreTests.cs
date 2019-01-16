@@ -61,6 +61,42 @@ namespace Test
             Assert.Empty(diagnostics);
         }
 
+        [Fact(DisplayName = "A populated ignore transformation produces no diagnostic.")]
+        public static async Task PopulatedIgnore2_Empty()
+        {
+            const string source = @"
+using System;
+using System.Collections.ObjectModel;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class LinkerCollection
+          : Collection<Linker>
+        {
+        }
+        
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.Link(""wow"", l => l.Link).Ignore(l => l.Id);
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "PopulatedIgnore2.cs", "populatedignore2").ConfigureAwait(false);
+
+            Assert.Empty(diagnostics);
+        }
+
         [Fact(DisplayName = "An empty ignore transformation produces TH1003.")]
         public static async Task EmptyIgnore_TH1003()
         {
@@ -87,6 +123,43 @@ namespace Test
 }
 ";
             var diagnostics = await Diagnose(source, "EmptyIgnore.cs", "emptyignore").ConfigureAwait(false);
+
+            var diagnostic = Assert.Single(diagnostics);
+            Assert.Equal(EmptyIgnoreAnalyzer.Id, diagnostic.Id);
+        }
+
+        [Fact(DisplayName = "An empty ignore transformation produces TH1003.")]
+        public static async Task EmptyIgnore2_TH1003()
+        {
+            const string source = @"
+using System;
+using System.Collections.ObjectModel;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class LinkerCollection
+          : Collection<Linker>
+        {
+        }
+        
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.Link(""wow"", l => l.Link).Ignore();
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "EmptyIgnore2.cs", "emptyignore2").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
             Assert.Equal(EmptyIgnoreAnalyzer.Id, diagnostic.Id);

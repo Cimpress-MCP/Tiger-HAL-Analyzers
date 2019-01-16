@@ -69,7 +69,7 @@ namespace Tiger.Hal.Analyzers
 
             context.RegisterCompilationStartAction(compilationContext =>
             {
-                var containingType = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
+                var containingType = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
                 if (containingType is null)
                 {
                     return;

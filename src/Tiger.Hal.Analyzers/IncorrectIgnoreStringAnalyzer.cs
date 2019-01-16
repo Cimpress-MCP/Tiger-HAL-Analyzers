@@ -15,6 +15,7 @@
 // </copyright>
 
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -59,17 +60,16 @@ namespace Tiger.Hal.Analyzers
 
             context.RegisterCompilationStartAction(compilationContext =>
             {
-                var containingType = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
-                if (containingType is null)
-                {
-                    return;
-                }
+                var containingType1 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
+                var containingType2 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
 
-                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType), InvocationExpression);
+                if (containingType1 is null && containingType2 is null) { return; }
+
+                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType1, containingType2), InvocationExpression);
             });
         }
 
-        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol containingType)
+        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, params INamedTypeSymbol[] containingTypes)
         {
             var ies = (InvocationExpressionSyntax)context.Node;
 
@@ -80,7 +80,7 @@ namespace Tiger.Hal.Analyzers
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (methodSymbol.ContainingType.OriginalDefinition != containingType || methodSymbol.Name != Ignore)
+            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name != Ignore)
             {
                 return;
             }
