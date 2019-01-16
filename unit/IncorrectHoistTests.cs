@@ -61,7 +61,7 @@ namespace Test
         }
 
         [Fact(DisplayName = "A selector which is wrapped in a function produces TH1004.")]
-        public static async Task FunctionCall_Extension_TH1002()
+        public static async Task FunctionCall_Extension_TH1004()
         {
             const string source = @"
 using System;
@@ -79,7 +79,7 @@ namespace Test
 
         static T Id<T>(T value) => value;
 
-        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        public static void Property_Ignored(ITransformationMap<Linker, string> transformationMap)
         {
             transformationMap.Hoist(l => Id(l.Id));
         }

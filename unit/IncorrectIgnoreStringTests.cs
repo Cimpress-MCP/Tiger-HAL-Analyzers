@@ -61,6 +61,42 @@ namespace Test
             Assert.Empty(diagnostics);
         }
 
+        [Fact(DisplayName = "A correct nameof selector produces no diagnostic.")]
+        public static async Task CorrectNameOfSelector2_Empty()
+        {
+            const string source = @"
+using System;
+using System.Collections.ObjectModel;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class LinkerCollection
+          : Collection<Linker>
+        {
+        }
+        
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.Ignore(nameof(Linker.Link));
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "Correct2.cs", "correct2").ConfigureAwait(false);
+
+            Assert.Empty(diagnostics);
+        }
+
         [Fact(DisplayName = "An incorrect nameof selector produces TH1005.")]
         public static async Task IncorrectNameOfSelector_Empty()
         {
@@ -87,6 +123,43 @@ namespace Test
 }
 ";
             var diagnostics = await Diagnose(source, "Incorrect.cs", "incorrect").ConfigureAwait(false);
+
+            var diagnostic = Assert.Single(diagnostics);
+            Assert.Equal(IncorrectIgnoreStringAnalyzer.Id, diagnostic.Id);
+        }
+
+        [Fact(DisplayName = "An incorrect nameof selector produces TH1005.")]
+        public static async Task IncorrectNameOfSelector2_Empty()
+        {
+            const string source = @"
+using System;
+using System.Collections.ObjectModel;
+using Tiger.Hal;
+
+namespace Test
+{
+    public static class ComplicatedLinkingTests
+    {
+        public sealed class LinkerCollection
+          : Collection<Linker>
+        {
+        }
+        
+        public sealed class Linker
+        {
+            public Uri Id { get; set; }
+
+            public Uri Link { get; set; }
+        }
+
+        public static void Property_Ignored(ITransformationMap<Linker> transformationMap)
+        {
+            transformationMap.Ignore(nameof(ComplicatedLinkingTests.Linker));
+        }
+    }
+}
+";
+            var diagnostics = await Diagnose(source, "Incorrect2.cs", "incorrect2").ConfigureAwait(false);
 
             var diagnostic = Assert.Single(diagnostics);
             Assert.Equal(IncorrectIgnoreStringAnalyzer.Id, diagnostic.Id);
