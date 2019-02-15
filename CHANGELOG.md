@@ -1,4 +1,8 @@
-﻿### What's new in 1.1.0 (Released 2019-01-16)
+﻿### What's new in 1.1.1 (Released 2019-02-15)
+
+* Project compatibility has been greatly widened.
+
+### What's new in 1.1.0 (Released 2019-01-16)
 
 * The new, 2-parameter variant of a transformation map can be analyzed.
 
