@@ -5,7 +5,7 @@
     <Copyright>©Cimpress 2018</Copyright>
     <AssemblyTitle>Tiger Hal Analyzers</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.1.1</VersionPrefix>
     <Authors>cosborn@cimpress.com</Authors>
     <TargetFramework>netstandard1.3</TargetFramework>
     <DefineConstants>$(DefineConstants);CODE_ANALYSIS</DefineConstants>
@@ -17,10 +17,14 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageId>Tiger.Hal.Analyzers</PackageId>
     <PackageTags>hal;json;hal+json;link</PackageTags>
-    <PackageReleaseNotes><![CDATA[➟ Release 1.1.0
+    <PackageReleaseNotes><![CDATA[➟ Release 1.1.1
+⁃ Project compatibility has been greatly widened.
+
+➟ Release 1.1.0
 ⁃ The new, 2-parameter variant of a transformation map can be analyzed.
 
 ➟ Release 1.0.0
+⁃ Everything is new!
 ]]></PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/Cimpress-MCP/Tiger-HAL-Analyzers</PackageProjectUrl>
     <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
@@ -40,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.10.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.3.2" PrivateAssets="All" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="All" />
 
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.3" PrivateAssets="All" />
@@ -48,7 +52,7 @@
     <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NetCore.Analyzers" Version="2.6.3" PrivateAssets="All" />
     <PackageReference Include="Roslynator.Analyzers" Version="2.0.0" PrivateAssets="All" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-rc.94" PrivateAssets="All" />
     <PackageReference Include="Text.Analyzers" Version="2.6.3" PrivateAssets="All" />
   </ItemGroup>
   
