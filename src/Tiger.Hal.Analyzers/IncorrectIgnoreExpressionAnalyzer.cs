@@ -1,7 +1,7 @@
 ﻿// <copyright file="IncorrectIgnoreExpressionAnalyzer.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -14,6 +14,7 @@
 //   limitations under the License.
 // </copyright>
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -38,10 +39,10 @@ namespace Tiger.Hal.Analyzers
 
         const string Ignore = "Ignore";
 
-        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor s_rule = new(
             id: Id,
             title: "Selector argument must be a simple property selector.",
-            messageFormat: "Remove selector from ignore transformation.",
+            messageFormat: "Remove invalid selector from ignore transformation.",
             category: "Usage",
             defaultSeverity: Error,
             isEnabledByDefault: true,
@@ -54,32 +55,38 @@ namespace Tiger.Hal.Analyzers
         /// <inheritdoc/>
         public override void Initialize(AnalysisContext context)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationContext =>
+            if (context is null)
             {
-                var containingType = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.TransformationMapExtensions");
-                if (containingType is null)
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
+            context.RegisterCompilationStartAction(csac =>
+            {
+                if (csac.Compilation.GetTypeByMetadataName("Tiger.Hal.TransformationMapExtensions") is not { } ct)
                 {
                     return;
                 }
 
-                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType), InvocationExpression);
+                csac.RegisterSyntaxNodeAction(snac => AnalyzeSyntaxNode(snac, ct), InvocationExpression);
             });
         }
 
-        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol containingType)
+        static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol containingType)
         {
             var ies = (InvocationExpressionSyntax)context.Node;
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(ies, context.CancellationToken);
-            if (symbolInfo.Symbol?.Kind != Method)
+            if (symbolInfo.Symbol?.Kind is not Method)
             {
                 return;
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (methodSymbol.ContainingType != containingType || methodSymbol.Name != Ignore)
+            if (!SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, containingType)
+                || methodSymbol.Name is not Ignore)
             {
                 return;
             }
@@ -107,7 +114,7 @@ namespace Tiger.Hal.Analyzers
                 .Skip(selectorSkip)
                 .Select(a => a.Expression)
                 .Select(e => Locate.NonSimpleSelector(context, e))
-                .Where(l => l != null);
+                .OfType<Location>();
             foreach (var selectorLocation in selectorLocations)
             {
                 context.ReportDiagnostic(Diagnostic.Create(s_rule, selectorLocation));

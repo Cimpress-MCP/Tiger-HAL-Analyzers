@@ -1,7 +1,7 @@
 ﻿// <copyright file="Locate.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -14,6 +14,7 @@
 //   limitations under the License.
 // </copyright>
 
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,49 +29,47 @@ namespace Tiger.Hal.Analyzers
         /// <param name="context">The context for syntax node analysis.</param>
         /// <param name="expressionSyntax">The expression to check.</param>
         /// <returns>The location of the simple selector, if one was found; otherwise, null.</returns>
-        public static Location NonSimpleSelector(SyntaxNodeAnalysisContext context, ExpressionSyntax expressionSyntax)
+        public static Location? NonSimpleSelector(SyntaxNodeAnalysisContext context, ExpressionSyntax expressionSyntax)
         {
-            if (expressionSyntax is LambdaExpressionSyntax les)
+            if (expressionSyntax is null)
             {
-                ParameterSyntax parameterSyntax;
-                switch (les)
-                {
-                    case SimpleLambdaExpressionSyntax sles:
-                        parameterSyntax = sles.Parameter;
-                        break;
-                    case ParenthesizedLambdaExpressionSyntax ples:
-                        // note(cosborn) Due to the signature, there can be only one.
-                        parameterSyntax = ples.ParameterList.Parameters[0];
-                        break;
-                    default:
-                        return null;
-                }
+                throw new ArgumentNullException(nameof(expressionSyntax));
+            }
 
-                var identifierSymbol = GetIdentifierSymbol(context, les.Body);
-                if (identifierSymbol != null)
+            if (expressionSyntax is not LambdaExpressionSyntax les)
+            {
+                return expressionSyntax.GetLocation();
+            }
+
+            var parameterSyntax = les switch
+            {
+                SimpleLambdaExpressionSyntax { Parameter: { } p } => p,
+                ParenthesizedLambdaExpressionSyntax { ParameterList: { Parameters: { } p } } => p[0],
+                _ => null,
+            };
+
+            if (parameterSyntax is not { } ps)
+            {
+                return null;
+            }
+
+            if (GetIdentifierSymbol(context, les.Body) is { } @is)
+            {
+                var parameterSymbol = context.SemanticModel.GetDeclaredSymbol(ps, context.CancellationToken);
+                if (SymbolEqualityComparer.Default.Equals(@is, parameterSymbol))
                 {
-                    var parameterSymbol = context.SemanticModel.GetDeclaredSymbol(parameterSyntax, context.CancellationToken);
-                    if (identifierSymbol == parameterSymbol)
-                    {
-                        return null;
-                    }
+                    return null;
                 }
             }
 
             return expressionSyntax.GetLocation();
 
-            ISymbol GetIdentifierSymbol(SyntaxNodeAnalysisContext c, CSharpSyntaxNode body)
+            static ISymbol? GetIdentifierSymbol(SyntaxNodeAnalysisContext c, CSharpSyntaxNode body) => body switch
             {
-                switch (body)
-                {
-                    case MemberAccessExpressionSyntax maes when maes.Expression is IdentifierNameSyntax ins:
-                        return c.SemanticModel.GetSymbolInfo(ins, c.CancellationToken).Symbol;
-                    case CastExpressionSyntax ces:
-                        return GetIdentifierSymbol(c, ces.Expression);
-                    default:
-                        return null;
-                }
-            }
+                MemberAccessExpressionSyntax maes when maes.Expression is IdentifierNameSyntax ins => c.SemanticModel.GetSymbolInfo(ins, c.CancellationToken).Symbol,
+                CastExpressionSyntax ces => GetIdentifierSymbol(c, ces.Expression),
+                _ => null,
+            };
         }
     }
 }
