@@ -1,7 +1,7 @@
 ﻿// <copyright file="IncorrectHoistAnalyzer.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -14,6 +14,7 @@
 //   limitations under the License.
 // </copyright>
 
+using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -38,10 +39,10 @@ namespace Tiger.Hal.Analyzers
 
         const string Hoist = "Hoist";
 
-        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor s_rule = new(
             id: Id,
             title: "Selector argument must be a simple property selector.",
-            messageFormat: "Remove meaningless hoist transformation.",
+            messageFormat: "Remove invalid hoist transformation.",
             category: "FadeOut",
             defaultSeverity: Error,
             isEnabledByDefault: true,
@@ -49,7 +50,7 @@ namespace Tiger.Hal.Analyzers
             helpLinkUri: "https://github.com/Cimpress-MCP/Tiger-HAL-Analyzers/blob/master/doc/reference/TH1004_SelectorArgumentMustBeASimplePropertySelector.md",
             customTags: Unnecessary);
 
-        static readonly DiagnosticDescriptor s_ruleFadeOut = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor s_ruleFadeOut = new(
             id: Id + "_fadeout",
             title: s_rule.Title,
             messageFormat: s_rule.MessageFormat,
@@ -65,37 +66,43 @@ namespace Tiger.Hal.Analyzers
         /// <inheritdoc/>
         public override void Initialize(AnalysisContext context)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationContext =>
+            if (context is null)
             {
-                var containingType = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
-                if (containingType is null)
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
+            context.RegisterCompilationStartAction(csac =>
+            {
+                if (csac.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2") is not { } ct)
                 {
                     return;
                 }
 
-                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType), InvocationExpression);
+                csac.RegisterSyntaxNodeAction(snac => AnalyzeSyntaxNode(snac, ct), InvocationExpression);
             });
         }
 
-        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol containingType)
+        static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol containingType)
         {
             var ies = (InvocationExpressionSyntax)context.Node;
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(ies, context.CancellationToken);
-            if (symbolInfo.Symbol?.Kind != Method)
+            if (symbolInfo.Symbol?.Kind is not Method)
             {
                 return;
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (methodSymbol.ContainingType.OriginalDefinition != containingType || methodSymbol.Name != Hoist)
+            if (!SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType.OriginalDefinition, containingType)
+                || methodSymbol.Name is not Hoist)
             {
                 return;
             }
 
-            if (!(ies.Expression is MemberAccessExpressionSyntax maes))
+            if (ies.Expression is not MemberAccessExpressionSyntax maes)
             {
                 // todo(cosborn) Or else what? What would this look like?
                 return;
