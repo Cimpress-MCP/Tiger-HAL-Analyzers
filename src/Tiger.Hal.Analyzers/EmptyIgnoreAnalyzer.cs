@@ -1,7 +1,7 @@
 ﻿// <copyright file="EmptyIgnoreAnalyzer.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -14,6 +14,7 @@
 //   limitations under the License.
 // </copyright>
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -39,7 +40,7 @@ namespace Tiger.Hal.Analyzers
 
         const string Ignore = "Ignore";
 
-        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor s_rule = new(
             id: Id,
             title: "Remove empty ignore transformation.",
             messageFormat: "Remove empty ignore transformation.",
@@ -56,42 +57,51 @@ namespace Tiger.Hal.Analyzers
         /// <inheritdoc/>
         public override void Initialize(AnalysisContext context)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationContext =>
+            if (context is null)
             {
-                var containingType1 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
-                var containingType2 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
+                throw new ArgumentNullException(nameof(context));
+            }
 
-                if (containingType1 is null && containingType2 is null) { return; }
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType1, containingType2), InvocationExpression);
+            context.RegisterCompilationStartAction(csac =>
+            {
+                var containingType1 = csac.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
+                var containingType2 = csac.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
+
+                if (containingType1 is null && containingType2 is null)
+                {
+                    return;
+                }
+
+                csac.RegisterSyntaxNodeAction(snac => AnalyzeSyntaxNode(snac, containingType1, containingType2), InvocationExpression);
             });
         }
 
-        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, params INamedTypeSymbol[] containingTypes)
+        static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, params INamedTypeSymbol?[] containingTypes)
         {
             var ies = (InvocationExpressionSyntax)context.Node;
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(ies, context.CancellationToken);
-            if (symbolInfo.Symbol?.Kind != Method)
+            if (symbolInfo.Symbol?.Kind is not Method)
             {
                 return;
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name != Ignore)
+            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name is not Ignore)
             {
                 return;
             }
 
-            if (ies.ArgumentList.Arguments.Count != 0)
+            if (ies.ArgumentList.Arguments.Count is not 0)
             {
                 // note(cosborn) We only fire if there are no arguments.
                 return;
             }
 
-            if (!(ies.Expression is MemberAccessExpressionSyntax maes))
+            if (ies.Expression is not MemberAccessExpressionSyntax maes)
             {
                 // todo(cosborn) Or else what? What would this look like?
                 return;

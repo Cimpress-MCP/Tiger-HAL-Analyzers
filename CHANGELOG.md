@@ -1,4 +1,8 @@
-﻿### What's new in 1.1.1 (Released 2019-02-15)
+﻿### What's new in 2.0.0 (Released 2021-03-11)
+
+* Project has been updated in accordance with Tiger.HAL.
+
+### What's new in 1.1.1 (Released 2019-02-15)
 
 * Project compatibility has been greatly widened.
 

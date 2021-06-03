@@ -1,7 +1,7 @@
 ﻿// <copyright file="EmptyIgnoreCodeFixProvider.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -26,7 +26,8 @@ using static Microsoft.CodeAnalysis.LanguageNames;
 namespace Tiger.Hal.Analyzers
 {
     /// <summary>Fixes empty invocations of Ignore.</summary>
-    [ExportCodeFixProvider(CSharp, Name = nameof(IncorrectLinkAndIgnoreCodeFixProvider)), Shared]
+    [ExportCodeFixProvider(CSharp, Name = nameof(IncorrectLinkAndIgnoreCodeFixProvider))]
+    [Shared]
     public sealed class EmptyIgnoreCodeFixProvider
         : CodeFixProvider
     {
@@ -42,11 +43,15 @@ namespace Tiger.Hal.Analyzers
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (root is null)
+            {
+                return;
+            }
 
             foreach (var diagnostic in context.Diagnostics)
             {
                 var invocation = (InvocationExpressionSyntax)root.FindNode(diagnostic.Location.SourceSpan);
-                if (!(invocation.Expression is MemberAccessExpressionSyntax maes))
+                if (invocation.Expression is not MemberAccessExpressionSyntax maes)
                 {
                     return;
                 }
@@ -60,7 +65,7 @@ namespace Tiger.Hal.Analyzers
             }
         }
 
-        Task<Document> Remove(SyntaxNode root, Document document, InvocationExpressionSyntax invocation, ExpressionSyntax leftOfTheDot)
+        static Task<Document> Remove(SyntaxNode root, Document document, InvocationExpressionSyntax invocation, ExpressionSyntax leftOfTheDot)
         {
             var newRoot = root.ReplaceNode(invocation, leftOfTheDot);
             return Task.FromResult(document.WithSyntaxRoot(newRoot));

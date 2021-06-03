@@ -1,7 +1,7 @@
 ﻿// <copyright file="IncorrectIgnoreStringAnalyzer.cs" company="Cimpress, Inc.">
-//   Copyright 2018 Cimpress, Inc.
+//   Copyright 2020 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License");
+//   Licensed under the Apache License, Version 2.0 (the "License") –
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
 //
@@ -14,6 +14,7 @@
 //   limitations under the License.
 // </copyright>
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -40,7 +41,7 @@ namespace Tiger.Hal.Analyzers
 
         const string NameOf = "nameof";
 
-        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor s_rule = new(
             id: Id,
             title: "Selector argument must be a name on the transforming type.",
             messageFormat: "Change parameter to use a valid nameof expression.",
@@ -56,31 +57,40 @@ namespace Tiger.Hal.Analyzers
         /// <inheritdoc/>
         public override void Initialize(AnalysisContext context)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationContext =>
+            if (context is null)
             {
-                var containingType1 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
-                var containingType2 = compilationContext.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
+                throw new ArgumentNullException(nameof(context));
+            }
 
-                if (containingType1 is null && containingType2 is null) { return; }
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-                compilationContext.RegisterSyntaxNodeAction(c => AnalyzeSyntaxNode(c, containingType1, containingType2), InvocationExpression);
+            context.RegisterCompilationStartAction(casc =>
+            {
+                var containingType1 = casc.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`1");
+                var containingType2 = casc.Compilation.GetTypeByMetadataName("Tiger.Hal.ITransformationMap`2");
+
+                if (containingType1 is null && containingType2 is null)
+                {
+                    return;
+                }
+
+                casc.RegisterSyntaxNodeAction(snac => AnalyzeSyntaxNode(snac, containingType1, containingType2), InvocationExpression);
             });
         }
 
-        void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, params INamedTypeSymbol[] containingTypes)
+        static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context, params INamedTypeSymbol?[] containingTypes)
         {
             var ies = (InvocationExpressionSyntax)context.Node;
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(ies, context.CancellationToken);
-            if (symbolInfo.Symbol?.Kind != Method)
+            if (symbolInfo.Symbol?.Kind is not Method)
             {
                 return;
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name != Ignore)
+            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name is not Ignore)
             {
                 return;
             }
@@ -88,14 +98,13 @@ namespace Tiger.Hal.Analyzers
             foreach (var argument in ies.ArgumentList.Arguments)
             {
                 var namedThing = GetArgumentToNameOf(argument.Expression, context);
-                if (namedThing is MemberAccessExpressionSyntax maes
-                    && maes.Expression is IdentifierNameSyntax ins)
+                if (namedThing is MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax ins })
                 {
                     var potentialTypeSymbolInfo = context.SemanticModel.GetSymbolInfo(ins, context.CancellationToken);
-                    if (potentialTypeSymbolInfo.Symbol?.Kind == NamedType)
+                    if (potentialTypeSymbolInfo.Symbol?.Kind is NamedType)
                     {
                         var typeSymbol = (INamedTypeSymbol)potentialTypeSymbolInfo.Symbol;
-                        if (typeSymbol == symbolInfo.Symbol.ContainingType.TypeArguments[0])
+                        if (SymbolEqualityComparer.Default.Equals(typeSymbol, symbolInfo.Symbol.ContainingType.TypeArguments[0]))
                         {
                             continue;
                         }
@@ -105,7 +114,7 @@ namespace Tiger.Hal.Analyzers
                 context.ReportDiagnostic(Diagnostic.Create(s_rule, argument.GetLocation()));
             }
 
-            ExpressionSyntax GetArgumentToNameOf(ExpressionSyntax expression, SyntaxNodeAnalysisContext c)
+            static ExpressionSyntax? GetArgumentToNameOf(ExpressionSyntax expression, SyntaxNodeAnalysisContext c)
             {
                 if (!expression.IsKind(InvocationExpression))
                 {
@@ -113,24 +122,20 @@ namespace Tiger.Hal.Analyzers
                 }
 
                 var invocation = (InvocationExpressionSyntax)expression;
-                if (invocation.ArgumentList.Arguments.Count != 1)
+                if (invocation.ArgumentList.Arguments.Count is not 1)
                 {
                     return null;
                 }
 
-                if (!(invocation.Expression is IdentifierNameSyntax ins) || ins.Identifier.ValueText != NameOf)
+                if (invocation.Expression is not IdentifierNameSyntax { Identifier: { ValueText: NameOf } })
                 {
                     return null;
                 }
 
                 // note(cosborn) A nameof expression has no symbol because it doesn't have a definition, but it is typed as string.
-                if (c.SemanticModel.GetSymbolInfo(expression, c.CancellationToken).Symbol != null
-                    || c.SemanticModel.GetTypeInfo(expression, c.CancellationToken).Type?.SpecialType != System_String)
-                {
-                    return null;
-                }
-
-                return invocation.ArgumentList.Arguments[0].Expression;
+                var isNameOf = c.SemanticModel.GetSymbolInfo(expression, c.CancellationToken).Symbol is null
+                    && c.SemanticModel.GetTypeInfo(expression, c.CancellationToken).Type?.SpecialType is System_String;
+                return !isNameOf ? null : invocation.ArgumentList.Arguments[0].Expression;
             }
         }
     }
