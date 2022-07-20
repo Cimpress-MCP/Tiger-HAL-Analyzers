@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Description>Analyzers for a transformer for ASP.NET Core to produce HAL+JSON responses.</Description>
     <AssemblyTitle>Tiger Hal Analyzers</AssemblyTitle>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionPrefix>2.0.1</VersionPrefix>
     <Authors>cosborn@cimpress.com</Authors>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Tiger.Hal.Analyzers</AssemblyName>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
@@ -14,11 +14,11 @@
     <IncludeSymbols>false</IncludeSymbols>
     <PackageId>Tiger.Hal.Analyzers</PackageId>
     <PackageTags>hal;json;hal+json;link</PackageTags>
-    <PackageReleaseNotes><![CDATA[➟ Release 2.0.0
-⁃ Project has been updated in accordance with Tiger.HAL.
-
-➟ Release 1.1.1
+    <PackageReleaseNotes><![CDATA[➟ Release 2.0.1
 ⁃ Project compatibility has been greatly widened.
+
+➟ Release 2.0.0
+⁃ Project has been updated in accordance with Tiger.HAL.
 ]]></PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/Cimpress-MCP/Tiger-HAL-Analyzers</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.6.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" PrivateAssets="All" />
 
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />

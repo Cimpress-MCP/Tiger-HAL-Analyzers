@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -41,10 +42,11 @@ namespace Tiger.Hal.Analyzers
 
         const string NameOf = "nameof";
 
-        static readonly DiagnosticDescriptor s_rule = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
-            title: "Selector argument must be a name on the transforming type.",
-            messageFormat: "Change parameter to use a valid nameof expression.",
+            title: "Selector argument must be a name on the transforming type",
+            messageFormat: "Change parameter to use a valid nameof expression",
             category: "Usage",
             defaultSeverity: Warning,
             isEnabledByDefault: true,
@@ -90,7 +92,7 @@ namespace Tiger.Hal.Analyzers
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name is not Ignore)
+            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition, SymbolEqualityComparer.Default) || methodSymbol.Name is not Ignore)
             {
                 return;
             }
@@ -127,7 +129,7 @@ namespace Tiger.Hal.Analyzers
                     return null;
                 }
 
-                if (invocation.Expression is not IdentifierNameSyntax { Identifier: { ValueText: NameOf } })
+                if (invocation.Expression is not IdentifierNameSyntax { Identifier.ValueText: NameOf })
                 {
                     return null;
                 }
