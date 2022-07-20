@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -39,10 +40,11 @@ namespace Tiger.Hal.Analyzers
 
         const string Ignore = "Ignore";
 
-        static readonly DiagnosticDescriptor s_rule = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
-            title: "Selector argument must be a simple property selector.",
-            messageFormat: "Remove invalid selector from ignore transformation.",
+            title: "Selector argument must be a simple property selector",
+            messageFormat: "Remove invalid selector from ignore transformation",
             category: "Usage",
             defaultSeverity: Error,
             isEnabledByDefault: true,
@@ -91,7 +93,7 @@ namespace Tiger.Hal.Analyzers
                 return;
             }
 
-            if (!(ies.Expression is MemberAccessExpressionSyntax))
+            if (ies.Expression is not MemberAccessExpressionSyntax)
             {
                 // todo(cosborn) Or else what? What would this look like?
                 return;
