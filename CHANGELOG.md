@@ -1,4 +1,8 @@
-﻿### What's new in 2.0.0 (Released 2021-03-11)
+﻿### What's new in 2.0.1 (Released 2022-07-20)
+
+* Project compatibility has been greatly widened.
+
+### What's new in 2.0.0 (Released 2021-03-11)
 
 * Project has been updated in accordance with Tiger.HAL.
 

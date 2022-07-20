@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.6.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
-    <PackageReference Include="Tiger.Hal" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="Tiger.Hal" Version="7.0.1" />
     <PackageReference Include="Tiger.Types" Version="5.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-
-    <PackageReference Include="coverlet.collector" Version="3.0.2" PrivateAssets="all" />
-    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" PrivateAssets="all" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" PrivateAssets="all" />
+    
+    <PackageReference Include="coverlet.collector" Version="3.1.2" PrivateAssets="all" />
+    <PackageReference Include="JunitXml.TestLogger" Version="3.0.114" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" PrivateAssets="All" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
 
     <ProjectReference Include="..\src\Tiger.Hal.Analyzers\Tiger.Hal.Analyzers.csproj" />
   </ItemGroup>

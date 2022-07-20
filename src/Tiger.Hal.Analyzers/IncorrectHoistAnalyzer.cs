@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -39,10 +40,11 @@ namespace Tiger.Hal.Analyzers
 
         const string Hoist = "Hoist";
 
-        static readonly DiagnosticDescriptor s_rule = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
-            title: "Selector argument must be a simple property selector.",
-            messageFormat: "Remove invalid hoist transformation.",
+            title: "Selector argument must be a simple property selector",
+            messageFormat: "Remove invalid hoist transformation",
             category: "FadeOut",
             defaultSeverity: Error,
             isEnabledByDefault: true,
@@ -50,7 +52,8 @@ namespace Tiger.Hal.Analyzers
             helpLinkUri: "https://github.com/Cimpress-MCP/Tiger-HAL-Analyzers/blob/master/doc/reference/TH1004_SelectorArgumentMustBeASimplePropertySelector.md",
             customTags: Unnecessary);
 
-        static readonly DiagnosticDescriptor s_ruleFadeOut = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_ruleFadeOut = new DiagnosticDescriptor(
             id: Id + "_fadeout",
             title: s_rule.Title,
             messageFormat: s_rule.MessageFormat,

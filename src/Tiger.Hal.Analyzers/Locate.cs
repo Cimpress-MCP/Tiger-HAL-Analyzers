@@ -44,7 +44,7 @@ namespace Tiger.Hal.Analyzers
             var parameterSyntax = les switch
             {
                 SimpleLambdaExpressionSyntax { Parameter: { } p } => p,
-                ParenthesizedLambdaExpressionSyntax { ParameterList: { Parameters: { } p } } => p[0],
+                ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters: { } p } => p[0],
                 _ => null,
             };
 

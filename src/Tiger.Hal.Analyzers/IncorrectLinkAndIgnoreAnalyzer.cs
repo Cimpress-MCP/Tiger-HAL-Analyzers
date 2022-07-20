@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -45,17 +46,19 @@ namespace Tiger.Hal.Analyzers
 
         const string Selector = "selector";
 
-        static readonly DiagnosticDescriptor s_rule = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
-            title: "Selector argument must be a simple property selector.",
-            messageFormat: "Remove suffix 'AndIgnore' from linking statement.",
+            title: "Selector argument must be a simple property selector",
+            messageFormat: "Remove suffix 'AndIgnore' from linking statement",
             category: "Usage",
             defaultSeverity: Error,
             isEnabledByDefault: true,
             description: "Ignoring anything but a simple property selector will fail at runtime. The property name is used to determine the value to ignore in the output.",
             helpLinkUri: "https://github.com/Cimpress-MCP/Tiger-HAL-Analyzers/blob/master/doc/reference/TH1001_SelectorArgumentMustBeASimplePropertySelector.md");
 
-        static readonly DiagnosticDescriptor s_ruleFadeOut = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_ruleFadeOut = new DiagnosticDescriptor(
             id: Id + "_fadeout",
             title: s_rule.Title,
             messageFormat: s_rule.MessageFormat,

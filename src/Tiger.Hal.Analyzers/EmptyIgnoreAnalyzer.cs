@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -40,10 +41,11 @@ namespace Tiger.Hal.Analyzers
 
         const string Ignore = "Ignore";
 
-        static readonly DiagnosticDescriptor s_rule = new(
+        [SuppressMessage("Microsoft.Analysis", "IDE0090", Justification = "Analyzer does not understand target-typed new.")]
+        static readonly DiagnosticDescriptor s_rule = new DiagnosticDescriptor(
             id: Id,
-            title: "Remove empty ignore transformation.",
-            messageFormat: "Remove empty ignore transformation.",
+            title: "Remove empty ignore transformation",
+            messageFormat: "Remove empty ignore transformation",
             category: "FadeOut",
             defaultSeverity: Info,
             isEnabledByDefault: true,
@@ -90,7 +92,7 @@ namespace Tiger.Hal.Analyzers
             }
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition) || methodSymbol.Name is not Ignore)
+            if (!containingTypes.Contains(methodSymbol.ContainingType.OriginalDefinition, SymbolEqualityComparer.Default) || methodSymbol.Name is not Ignore)
             {
                 return;
             }
